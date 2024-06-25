@@ -11,7 +11,9 @@ export default async function Home() {
     collection: 'surge',
     limit: 1,
   })
-  const surgeEffects = (surgeEffectsRaw.docs[0].table ?? '').split('\n')
+  const surgeEffects = (surgeEffectsRaw.docs[0] ? surgeEffectsRaw.docs[0].table ?? '' : '').split(
+    '\n',
+  )
   return (
     <main className={styles.main}>
       <Main surgeTable={surgeEffects}></Main>
