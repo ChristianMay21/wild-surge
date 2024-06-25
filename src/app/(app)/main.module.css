@@ -12,6 +12,12 @@
   margin-bottom: 32px;
 }
 
+@media (max-width: 768px) {
+  .surgeTableHeadingContainer {
+    margin-bottom: 16px;
+  }
+}
+
 .surgeChanceContainer {
   border: 1px solid white;
   padding: 16px;
@@ -116,6 +122,8 @@
   .surgeEffectContainer {
     margin-top: 12px;
     height: 180px;
+    padding-top: 24px;
+    padding-bottom: 24px;
   }
 }
 
