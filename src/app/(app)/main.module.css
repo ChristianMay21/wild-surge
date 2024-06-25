@@ -114,7 +114,8 @@
 
 @media (max-width: 768px) {
   .surgeEffectContainer {
-    height: 240px;
+    margin-top: 12px;
+    height: 180px;
   }
 }
 
