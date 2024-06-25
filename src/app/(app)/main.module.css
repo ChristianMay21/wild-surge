@@ -1,0 +1,139 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.surgeTableHeadingContainer {
+  border: 1px solid white;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+.surgeChanceContainer {
+  border: 1px solid white;
+  padding: 16px;
+  margin-bottom: 32px;
+  margin-top: auto;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heading {
+  font-size: 24px;
+}
+
+.surgeChanceNumberContainer {
+  text-align: center;
+  font-size: 48px;
+}
+
+.surgeChanceNumber {
+}
+
+.buttonRow {
+  display: flex;
+  margin-bottom: 48px;
+}
+
+.tidesContainer {
+  padding: 25px;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tidesButton {
+  width: 110px;
+  height: 110px;
+  background-image: url('/300px-Tides_of_Chaos.webp');
+  background-size: cover;
+}
+
+.tidesLabel {
+  font-size: 20px;
+  text-align: center;
+  background-color: #7c5b3e;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 9999px;
+  padding: 8px 24px;
+}
+
+.surgeContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.surgeButton {
+  width: 150px;
+  height: 150px;
+  background-image: url('/Wild_Magic_Barbarian_Subclass_Icon.png');
+  background-size: cover;
+}
+
+.surgeLabel {
+  font-size: 20px;
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #7c5b3e;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 9999px;
+  padding: 8px 24px;
+}
+
+.surgeLabel:hover {
+  background-color: #6a4f35;
+}
+
+.surgeEffectContainer {
+  width: 350px;
+  border: 1px solid white;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 48px;
+  padding-bottom: 48px;
+  border-radius: 24px;
+}
+
+.surgeEffect {
+  width: 22ch;
+  animation: 6s fadeInUp;
+  white-space: nowrap;
+  overflow: hidden;
+  overflow-y: scroll;
+  font-family: monospace;
+  font-size: 2em;
+  text-align: center;
+  text-wrap: auto;
+}
+
+@media (max-width: 768px) {
+  .surgeEffect {
+    font-size: 1.75em;
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
