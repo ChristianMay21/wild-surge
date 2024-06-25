@@ -25,6 +25,7 @@
 
 .heading {
   font-size: 24px;
+  color: white;
 }
 
 .surgeChanceNumberContainer {
@@ -126,6 +127,7 @@
   font-size: 2em;
   text-align: center;
   text-wrap: auto;
+  color: white;
 }
 
 @media (max-width: 768px) {
