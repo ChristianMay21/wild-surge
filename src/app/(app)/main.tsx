@@ -11,8 +11,6 @@ interface MainProps {
 
 export default function Main(props: MainProps) {
   const [surgeProbability, setSurgeProbability] = useState(0.05)
-  const [delayedEffect, setDelayedEffect] = useState('None')
-  const [delayedTime, setDelayedTime] = useState(60)
   const [tidesDisabled, setTidesDisabled] = useState(false)
   const [surgeEffect, setSurgeEffect] = useState('Chaos comes.')
   const [surgeTextDelay, setSurgeTextDelay] = useState(false)
