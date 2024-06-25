@@ -109,6 +109,12 @@
   border-radius: 24px;
 }
 
+@media (max-width: 768px) {
+  .surgeEffectContainer {
+    height: 240px;
+  }
+}
+
 .surgeEffect {
   width: 22ch;
   animation: 6s fadeInUp;
