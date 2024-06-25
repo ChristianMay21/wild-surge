@@ -50,6 +50,9 @@ export default buildConfig({
           type: 'textarea',
         },
       ],
+      access: {
+        read: () => true,
+      },
     },
   ],
   secret: process.env.PAYLOAD_SECRET || 'secret',

@@ -10,6 +10,7 @@ interface MainProps {
 }
 
 export default function Main(props: MainProps) {
+  const [surgeEffects, setSurgeEffects] = useState(props.surgeTable)
   const [surgeProbability, setSurgeProbability] = useState(0.05)
   const [tidesDisabled, setTidesDisabled] = useState(false)
   const [surgeEffect, setSurgeEffect] = useState('Chaos comes.')
@@ -18,6 +19,18 @@ export default function Main(props: MainProps) {
   const noSurgeSound = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/surge?limit=1')
+        const data = await response.json()
+        setSurgeEffects(data.docs[0].table.split('\n'))
+      } catch (error) {
+        console.error('An error occurred:', error)
+      }
+    }
+
+    fetchData()
+
     // Create an Audio object when the component mounts
     surgeSound.current = new Audio('/surge-sound.wav')
     noSurgeSound.current = new Audio('/no-surge-sound.wav')
@@ -62,8 +75,8 @@ export default function Main(props: MainProps) {
   }
 
   function activateSurgeEffect() {
-    const possibleOutcomes = props.surgeTable.length
-    const outcome = props.surgeTable[Math.floor(Math.random() * possibleOutcomes)]
+    const possibleOutcomes = surgeEffects.length
+    const outcome = surgeEffects[Math.floor(Math.random() * possibleOutcomes)]
     setSurgeEffect(outcome)
   }
 
