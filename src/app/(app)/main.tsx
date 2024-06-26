@@ -98,12 +98,16 @@ export default function Main(props: MainProps) {
 
     try {
       const response = await fetch('/generate-surge?promptType=' + promptType)
-      const data = await response.json()
+      let data = await response.json()
+      if(data.message.trim().startsWith("An error occurred")) {
+        data.message = "Wild magic fart. Please reroll."
+      }
       setSurgeTextDelay(true)
       setTimeout(async () => {
         setSurgeTextDelay(false)
         setSurgeEffect(data.message)
       }, 750)
+      
       setPrevSurges((prevSurges) => [...prevSurges, { text: data.message, surgeType: surgeType }])
       setCurrentSurgeIndex(prevSurges.length)
     } catch (error) {
