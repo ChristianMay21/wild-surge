@@ -147,7 +147,7 @@
   font-family: monospace;
   font-size: 2em;
   text-align: center;
-  text-wrap: auto;
+  text-wrap: wrap;
   color: white;
 }
 
