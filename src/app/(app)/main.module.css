@@ -149,6 +149,7 @@
   text-align: center;
   text-wrap: wrap;
   color: white;
+  scrollbar-width: thin;
 }
 
 [data-surge-type='1'] .surgeEffect {
