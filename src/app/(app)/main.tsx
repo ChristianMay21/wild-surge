@@ -20,6 +20,7 @@ export default function Main(props: MainProps) {
   const [surgeEffect, setSurgeEffect] = useState('Chaos comes.')
   const [surgeTextDelay, setSurgeTextDelay] = useState(false)
   const [surgeType, setSurgeType] = useState<SurgeType>(SurgeType.NoSurge)
+  const [isLoading, setIsLoading] = useState(false)
   const surgeSound = useRef<HTMLAudioElement | null>(null)
   const noSurgeSound = useRef<HTMLAudioElement | null>(null)
 
@@ -52,6 +53,8 @@ export default function Main(props: MainProps) {
       setSurgeTextDelay(false)
       if (surgeOccurs) {
         playSurgeSound()
+        setSurgeEffect('The wild magic surges...')
+        setIsLoading(true)
         await activateSurgeEffect()
         setSurgeProbability(0.05)
         setTidesDisabled(false)
@@ -73,29 +76,26 @@ export default function Main(props: MainProps) {
     let promptType = ''
     if (randomRoll < 0.35) {
       promptType = 'helpful'
+      setSurgeType(SurgeType.Helpful)
     } else if (randomRoll < 0.6) {
       promptType = 'neutral'
+      setSurgeType(SurgeType.Neutral)
     } else if (randomRoll < 0.8) {
       promptType = 'harmful'
+      setSurgeType(SurgeType.Harmful)
     } else {
       promptType = 'chaotic'
+      setSurgeType(SurgeType.Chaotic)
     }
 
     try {
-      const response = await fetch('/api/generate-surge?promptType=' + promptType)
+      const response = await fetch('/generate-surge?promptType=' + promptType)
       const data = await response.json()
-      console.log('surge data')
-      console.log(data)
-      setSurgeEffect(data.message)
-      if (randomRoll < 0.35) {
-        setSurgeType(SurgeType.Helpful)
-      } else if (randomRoll < 0.6) {
-        setSurgeType(SurgeType.Neutral)
-      } else if (randomRoll < 0.8) {
-        setSurgeType(SurgeType.Harmful)
-      } else {
-        setSurgeType(SurgeType.Chaotic)
-      }
+      setSurgeTextDelay(true)
+      setTimeout(async () => {
+        setSurgeTextDelay(false)
+        setSurgeEffect(data.message)
+      }, 750)
     } catch (error) {
       setSurgeEffect('An error occurred: ' + error)
     }

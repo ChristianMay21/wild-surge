@@ -5,9 +5,6 @@ import Anthropic from '@anthropic-ai/sdk'
 import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
-const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-
 export async function GET(request: NextRequest) {
   console.log('GET fired')
   const promptType = request.nextUrl.searchParams.get('promptType')
@@ -20,73 +17,51 @@ export async function GET(request: NextRequest) {
   })
   const surgeEffects = surgeEffectsRaw.docs[0] ? surgeEffectsRaw.docs[0].table ?? '' : ''
 
-  const helpfulSurgeData = (
-    await payload.find({
-      collection: 'prompt',
-      limit: 1,
-      where: {
-        title: {
-          equals: 'helpful',
+  async function getPromptWithName(name: string) {
+    return (
+      await payload.find({
+        collection: 'prompt',
+        limit: 1,
+        where: {
+          title: {
+            equals: name,
+          },
         },
-      },
-    })
-  ).docs
+      })
+    ).docs
+  }
+
+  const helpfulSurgeData = await getPromptWithName('helpful')
   const helpfulSurgePrompt =
     helpfulSurgeData.length > 0
       ? helpfulSurgeData[0].prompt
       : "Please come up with a Dungeons and Dragons 5th edition wild magic surge effect that has a beneficial effect for the sorcerer - including abilities that damage/apply status conditions to enemies only, or improve the sorceror's or their allies' abilities. "
 
-  const neutralSurgeData = (
-    await payload.find({
-      collection: 'prompt',
-      limit: 1,
-      where: {
-        title: {
-          equals: 'neutral',
-        },
-      },
-    })
-  ).docs
+  const neutralSurgeData = await getPromptWithName('neutral')
   const neutralSurgePrompt =
     neutralSurgeData.length > 0
-      ? helpfulSurgeData[0].prompt
+      ? neutralSurgeData[0].prompt ?? ''
       : 'Please come up with a Dungeons and Dragons 5th edition wild magic surge effect that will create a risk to both the sorcerer/their party and their enemies. '
 
-  const harmfulSurgeData = (
-    await payload.find({
-      collection: 'prompt',
-      limit: 1,
-      where: {
-        title: {
-          equals: 'harmful',
-        },
-      },
-    })
-  ).docs
+  const harmfulSurgeData = await getPromptWithName('harmful')
   const harmfulSurgePrompt =
     harmfulSurgeData.length > 0
-      ? helpfulSurgeData[0].prompt
+      ? harmfulSurgeData[0].prompt ?? ''
       : 'Please come up with a Dungeons and Dragons 5th edition wild magic surge effect that will be bad for the sorcerer and their party. '
 
-  const chaoticSurgeData = (
-    await payload.find({
-      collection: 'prompt',
-      limit: 1,
-      where: {
-        title: {
-          equals: 'chaotic',
-        },
-      },
-    })
-  ).docs
+  const chaoticSurgeData = await getPromptWithName('chaotic')
   const chaoticSurgePrompt =
     chaoticSurgeData.length > 0
-      ? helpfulSurgeData[0].prompt
+      ? chaoticSurgeData[0].prompt ?? ''
       : 'Please come up with a Dungeons and Dragons 5th edition wild magic surge effect that will be be a chaotic or silly and harmless magical effect. '
 
-  const anthropic = new Anthropic({
-    apiKey: 'my_api_key',
-  })
+  const systemPromptData = await getPromptWithName('system')
+  const systemPrompt =
+    systemPromptData.length > 0
+      ? systemPromptData[0].prompt ?? ''
+      : 'Your job is to create a single original Dungeons and Dragons 5th edition wild magic surge effect as a response to any prompt, and return only a single surge effect. Please stay concise, but also keep things chaotic and silly. Each prompt will describe different characteristics it wants for its surge effect - please pay careful attention to the characteristics the prompt requests and use them to inform your response. Try to put silly flavor on it, and make sure to give every surge effect a cool name.'
+
+  const anthropic = new Anthropic()
 
   switch (promptType) {
     case 'helpful':
@@ -104,11 +79,27 @@ export async function GET(request: NextRequest) {
 
   prompt += 'Please use the following as inspiration for wild magic surge effects: ' + surgeEffects
 
+  console.log('MESSAGE')
+  console.log(prompt)
   const msg = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20240620',
-    max_tokens: 10240,
-    messages: [{ role: 'user', content: prompt }],
+    model: 'claude-3-opus-20240229',
+    max_tokens: 4096,
+    system: systemPrompt,
+    messages: [
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ],
   })
+  let message = ''
+  switch (msg.content[0].type) {
+    case 'text':
+      message = msg.content[0].text
+      break
+    default:
+      message = 'Error: wrong type of content returned by Anthropic API'
+  }
 
-  return NextResponse.json({ msg })
+  return NextResponse.json({ message })
 }

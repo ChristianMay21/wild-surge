@@ -151,6 +151,22 @@
   color: white;
 }
 
+[data-surge-type='1'] .surgeEffect {
+  color: #10b981;
+}
+
+[data-surge-type='2'] .surgeEffect {
+  color: #06b6d4;
+}
+
+[data-surge-type='3'] .surgeEffect {
+  color: #ef4444;
+}
+
+[data-surge-type='4'] .surgeEffect {
+  color: #a855f7;
+}
+
 @media (max-width: 768px) {
   .surgeEffect {
     font-size: 1.75em;
