@@ -76,9 +76,20 @@ export default function Main(props: MainProps) {
     setSurgeProbability(1)
   }
 
+  async function getSurgeResult(promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic') {
+    const response = await fetch('/generate-surge?promptType=' + promptType)
+    let data = await response.json()
+    if (data.message.trim().startsWith('An error occured: ')) {
+      console.log('Retrying.')
+      return await getSurgeResult(promptType)
+    } else {
+      return data.message
+    }
+  }
+
   async function activateSurgeEffect() {
     const randomRoll = Math.random()
-    let promptType = ''
+    let promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic'
     let surgeType: SurgeType = SurgeType.Neutral
     if (randomRoll < 0.35) {
       promptType = 'helpful'
@@ -97,18 +108,14 @@ export default function Main(props: MainProps) {
     setSurgeType(surgeType)
 
     try {
-      const response = await fetch('/generate-surge?promptType=' + promptType)
-      let data = await response.json()
-      if(data.message.trim().startsWith("An error occurred")) {
-        data.message = "Wild magic fart. Please reroll."
-      }
+      const message = await getSurgeResult(promptType)
       setSurgeTextDelay(true)
       setTimeout(async () => {
         setSurgeTextDelay(false)
-        setSurgeEffect(data.message)
+        setSurgeEffect(message)
       }, 750)
-      
-      setPrevSurges((prevSurges) => [...prevSurges, { text: data.message, surgeType: surgeType }])
+
+      setPrevSurges((prevSurges) => [...prevSurges, { text: message, surgeType: surgeType }])
       setCurrentSurgeIndex(prevSurges.length)
     } catch (error) {
       setSurgeEffect('An error occurred: ' + error)
