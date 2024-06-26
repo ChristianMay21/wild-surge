@@ -1,36 +1,29 @@
 'use client'
-
-import Image from 'next/image'
 import styles from './main.module.css'
 import { useEffect, useRef, useState } from 'react'
-import SurgeTable from './surgeTable'
 
 interface MainProps {
   surgeTable: string[]
 }
 
+enum SurgeType {
+  NoSurge,
+  Helpful,
+  Neutral,
+  Harmful,
+  Chaotic,
+}
+
 export default function Main(props: MainProps) {
-  const [surgeEffects, setSurgeEffects] = useState(props.surgeTable)
   const [surgeProbability, setSurgeProbability] = useState(0.05)
   const [tidesDisabled, setTidesDisabled] = useState(false)
   const [surgeEffect, setSurgeEffect] = useState('Chaos comes.')
   const [surgeTextDelay, setSurgeTextDelay] = useState(false)
+  const [surgeType, setSurgeType] = useState<SurgeType>(SurgeType.NoSurge)
   const surgeSound = useRef<HTMLAudioElement | null>(null)
   const noSurgeSound = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/surge?limit=1')
-        const data = await response.json()
-        setSurgeEffects(data.docs[0].table.split('\n'))
-      } catch (error) {
-        console.error('An error occurred:', error)
-      }
-    }
-
-    fetchData()
-
     // Create an Audio object when the component mounts
     surgeSound.current = new Audio('/surge-sound.wav')
     noSurgeSound.current = new Audio('/no-surge-sound.wav')
@@ -52,19 +45,20 @@ export default function Main(props: MainProps) {
     }
   }
 
-  function handleSurgeClick() {
+  async function handleSurgeClick() {
     const surgeOccurs = Math.random() < surgeProbability
     setSurgeTextDelay(true)
-    setTimeout(() => {
+    setTimeout(async () => {
       setSurgeTextDelay(false)
       if (surgeOccurs) {
         playSurgeSound()
-        activateSurgeEffect()
+        await activateSurgeEffect()
         setSurgeProbability(0.05)
         setTidesDisabled(false)
       } else {
         playNoSurgeSound()
         setSurgeEffect('The wild magic waits.')
+        setSurgeType(SurgeType.NoSurge)
         setSurgeProbability((surgeProbability) => surgeProbability + 0.05)
       }
     }, 750)
@@ -74,10 +68,35 @@ export default function Main(props: MainProps) {
     setSurgeProbability(1)
   }
 
-  function activateSurgeEffect() {
-    const possibleOutcomes = surgeEffects.length
-    const outcome = surgeEffects[Math.floor(Math.random() * possibleOutcomes)]
-    setSurgeEffect(outcome)
+  async function activateSurgeEffect() {
+    const randomRoll = Math.random()
+    let promptType = ''
+    if (randomRoll < 0.35) {
+      promptType = 'helpful'
+    } else if (randomRoll < 0.6) {
+      promptType = 'neutral'
+    } else if (randomRoll < 0.8) {
+      promptType = 'harmful'
+    } else {
+      promptType = 'chaotic'
+    }
+
+    try {
+      const response = await fetch('/api/generate-surge?promptType=' + promptType)
+      const data = await response.json()
+      setSurgeEffect(data)
+      if (randomRoll < 0.35) {
+        setSurgeType(SurgeType.Helpful)
+      } else if (randomRoll < 0.6) {
+        setSurgeType(SurgeType.Neutral)
+      } else if (randomRoll < 0.8) {
+        setSurgeType(SurgeType.Harmful)
+      } else {
+        setSurgeType(SurgeType.Chaotic)
+      }
+    } catch (error) {
+      setSurgeEffect('An error occurred: ' + error)
+    }
   }
 
   return (
@@ -85,7 +104,7 @@ export default function Main(props: MainProps) {
       <div className={styles.surgeTableHeadingContainer}>
         <h2 className={styles.heading}>Surge Table</h2>
       </div>
-      <div className={styles.surgeEffectContainer}>
+      <div className={styles.surgeEffectContainer} data-surge-type={surgeType}>
         {surgeTextDelay ? <></> : <p className={styles.surgeEffect}>{surgeEffect}</p>}
       </div>
       <div className={styles.surgeChanceContainer}>

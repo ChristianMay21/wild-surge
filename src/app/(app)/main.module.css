@@ -81,6 +81,11 @@
   padding: 8px 24px;
 }
 
+.tidesLabel[disabled] {
+  background-color: gray;
+  cursor: not-allowed;
+}
+
 .surgeContainer {
   display: flex;
   flex-direction: column;

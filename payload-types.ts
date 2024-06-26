@@ -10,6 +10,7 @@ export interface Config {
   collections: {
     users: User;
     surge: Surge;
+    prompt: Prompt;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
@@ -43,6 +44,17 @@ export interface User {
 export interface Surge {
   id: string;
   table?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "prompt".
+ */
+export interface Prompt {
+  id: string;
+  title?: string | null;
+  prompt?: string | null;
   updatedAt: string;
   createdAt: string;
 }

@@ -54,6 +54,20 @@ export default buildConfig({
         read: () => true,
       },
     },
+    {
+      slug: 'prompt',
+      auth: false,
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+        },
+        {
+          name: 'prompt',
+          type: 'textarea',
+        },
+      ],
+    },
   ],
   secret: process.env.PAYLOAD_SECRET || 'secret',
   typescript: {
