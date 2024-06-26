@@ -203,6 +203,7 @@
   cursor: pointer;
   width: 120px;
   text-align: center;
+  background-color: #222128;
 }
 
 .leftArrow[disabled] {
@@ -218,6 +219,7 @@
   cursor: pointer;
   width: 120px;
   text-align: center;
+  background-color: #222128;
 }
 
 .rightArrow[disabled] {
