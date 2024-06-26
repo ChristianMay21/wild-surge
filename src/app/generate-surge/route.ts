@@ -77,12 +77,8 @@ export async function GET(request: NextRequest) {
       prompt += chaoticSurgePrompt
   }
 
-  prompt += 'Please use the following as inspiration for wild magic surge effects: ' + surgeEffects
-
-  console.log('MESSAGE')
-  console.log(prompt)
   const msg = await anthropic.messages.create({
-    model: 'claude-3-opus-20240229',
+    model: 'claude-3-5-sonnet-20240620',
     max_tokens: 4096,
     system: systemPrompt,
     messages: [
