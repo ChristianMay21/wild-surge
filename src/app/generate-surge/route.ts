@@ -97,5 +97,15 @@ export async function GET(request: NextRequest) {
       message = 'Error: wrong type of content returned by Anthropic API'
   }
 
-  return NextResponse.json({ message })
+  return NextResponse.json(
+    { message },
+    {
+      status: 200,
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    },
+  )
 }
+
+export const dynamic = 'force-dynamic'
