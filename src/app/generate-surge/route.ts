@@ -6,7 +6,6 @@ import { getPayloadHMR } from '@payloadcms/next/utilities'
 import configPromise from '@payload-config'
 
 export async function GET(request: NextRequest) {
-  console.log('GET fired')
   const promptType = request.nextUrl.searchParams.get('promptType')
   let prompt = ''
 

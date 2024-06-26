@@ -14,13 +14,19 @@ enum SurgeType {
   Chaotic,
 }
 
+interface PrevSurge {
+  text: string
+  surgeType: SurgeType
+}
+
 export default function Main(props: MainProps) {
   const [surgeProbability, setSurgeProbability] = useState(0.05)
   const [tidesDisabled, setTidesDisabled] = useState(false)
   const [surgeEffect, setSurgeEffect] = useState('Chaos comes.')
   const [surgeTextDelay, setSurgeTextDelay] = useState(false)
   const [surgeType, setSurgeType] = useState<SurgeType>(SurgeType.NoSurge)
-  const [isLoading, setIsLoading] = useState(false)
+  const [prevSurges, setPrevSurges] = useState<PrevSurge[]>([])
+  const [currentSurgeIndex, setCurrentSurgeIndex] = useState(-1)
   const surgeSound = useRef<HTMLAudioElement | null>(null)
   const noSurgeSound = useRef<HTMLAudioElement | null>(null)
 
@@ -54,7 +60,6 @@ export default function Main(props: MainProps) {
       if (surgeOccurs) {
         playSurgeSound()
         setSurgeEffect('The wild magic surges...')
-        setIsLoading(true)
         await activateSurgeEffect()
         setSurgeProbability(0.05)
         setTidesDisabled(false)
@@ -74,19 +79,22 @@ export default function Main(props: MainProps) {
   async function activateSurgeEffect() {
     const randomRoll = Math.random()
     let promptType = ''
+    let surgeType: SurgeType = SurgeType.Neutral
     if (randomRoll < 0.35) {
       promptType = 'helpful'
-      setSurgeType(SurgeType.Helpful)
+      surgeType = SurgeType.Helpful
     } else if (randomRoll < 0.6) {
       promptType = 'neutral'
-      setSurgeType(SurgeType.Neutral)
+      surgeType = SurgeType.Neutral
     } else if (randomRoll < 0.8) {
       promptType = 'harmful'
-      setSurgeType(SurgeType.Harmful)
+      surgeType = SurgeType.Harmful
     } else {
       promptType = 'chaotic'
-      setSurgeType(SurgeType.Chaotic)
+      surgeType = SurgeType.Chaotic
     }
+
+    setSurgeType(surgeType)
 
     try {
       const response = await fetch('/generate-surge?promptType=' + promptType)
@@ -96,8 +104,26 @@ export default function Main(props: MainProps) {
         setSurgeTextDelay(false)
         setSurgeEffect(data.message)
       }, 750)
+      setPrevSurges((prevSurges) => [...prevSurges, { text: data.message, surgeType: surgeType }])
+      setCurrentSurgeIndex(prevSurges.length)
     } catch (error) {
       setSurgeEffect('An error occurred: ' + error)
+    }
+  }
+
+  function leftHandler() {
+    if (currentSurgeIndex > 0) {
+      setSurgeEffect(prevSurges[currentSurgeIndex - 1].text)
+      setSurgeType(prevSurges[currentSurgeIndex - 1].surgeType)
+      setCurrentSurgeIndex((currentSurgeIndex) => currentSurgeIndex - 1)
+    }
+  }
+
+  function rightHandler() {
+    if (!(currentSurgeIndex === prevSurges.length - 1)) {
+      setSurgeEffect(prevSurges[currentSurgeIndex + 1].text)
+      setSurgeType(prevSurges[currentSurgeIndex + 1].surgeType)
+      setCurrentSurgeIndex((currentSurgeIndex) => currentSurgeIndex + 1)
     }
   }
 
@@ -108,6 +134,18 @@ export default function Main(props: MainProps) {
       </div>
       <div className={styles.surgeEffectContainer} data-surge-type={surgeType}>
         {surgeTextDelay ? <></> : <p className={styles.surgeEffect}>{surgeEffect}</p>}
+      </div>
+      <div className={styles.arrowContainer}>
+        <button className={styles.leftArrow} disabled={currentSurgeIndex < 1} onClick={leftHandler}>
+          Previous
+        </button>
+        <button
+          className={styles.rightArrow}
+          disabled={currentSurgeIndex === prevSurges.length - 1}
+          onClick={rightHandler}
+        >
+          Next
+        </button>
       </div>
       <div className={styles.surgeChanceContainer}>
         <h2 className={styles.heading}>Chance of Surge Effect</h2>
