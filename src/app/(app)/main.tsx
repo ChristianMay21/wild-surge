@@ -82,9 +82,11 @@ export default function Main(props: MainProps) {
     }
 
     try {
-      const response = await fetch('/api/generate-surge?promptType=' + promptType)
+      const response = await fetch('/api/generatesurge?promptType=' + promptType)
       const data = await response.json()
-      setSurgeEffect(data)
+      console.log('surge data')
+      console.log(data)
+      setSurgeEffect(data.message)
       if (randomRoll < 0.35) {
         setSurgeType(SurgeType.Helpful)
       } else if (randomRoll < 0.6) {
