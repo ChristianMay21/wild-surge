@@ -82,7 +82,7 @@ export default function Main(props: MainProps) {
     }
 
     try {
-      const response = await fetch('/api/generatesurge?promptType=' + promptType)
+      const response = await fetch('/api/generate-surge?promptType=' + promptType)
       const data = await response.json()
       console.log('surge data')
       console.log(data)
