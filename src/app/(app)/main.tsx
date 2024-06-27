@@ -14,7 +14,7 @@ enum SurgeType {
   Chaotic,
 }
 
-interface PrevSurge {
+interface Surge {
   text: string
   surgeType: SurgeType
 }
@@ -33,7 +33,7 @@ export default function Main(props: MainProps) {
   const [surgeEffect, setSurgeEffect] = useState('Chaos comes.')
   const [surgeTextDelay, setSurgeTextDelay] = useState(false)
   const [surgeType, setSurgeType] = useState<SurgeType>(SurgeType.NoSurge)
-  const [prevSurges, setPrevSurges] = useState<PrevSurge[]>([])
+  const [prevSurges, setPrevSurges] = useState<Surge[]>([])
   const [currentSurgeIndex, setCurrentSurgeIndex] = useState(-1)
   const surgeSound = useRef<HTMLAudioElement | null>(null)
   const noSurgeSound = useRef<HTMLAudioElement | null>(null)
@@ -92,7 +92,20 @@ export default function Main(props: MainProps) {
       return message
     } else {
       setSurgeType(SurgeType.Neutral)
-      setSurgeEffect('Wild magic fart. Please wait.')
+      setSurgeEffect(
+        [
+          '...any second now...',
+          "...it's coming, I promise...",
+          '...Slight delay. Who coded this shit, anyways?',
+          '...the sorcerer jumps up and down a bit. Is this thing on?',
+          '...is it actually a wild magic surge, or does he just have gas?',
+          '...the Weave is a bit tangled right now...',
+          "...while we wait, what if two of the characters kissed?",
+          "...plumbing's a bit clogged. Might want to try some fiber...",
+          "...if you could go back in time, would you kill baby BBEG?..",
+          "...a Tarrasque spawns. Just kidding..."
+        ][Math.floor(Math.random() * 10)],
+      )
       return await getSurgeResult(promptType)
     }
   }
