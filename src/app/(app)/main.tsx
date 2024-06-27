@@ -22,6 +22,7 @@ interface PrevSurge {
 declare global {
   interface Window {
     test: any
+    test0: any
   }
 }
 
@@ -84,6 +85,8 @@ export default function Main(props: MainProps) {
 
   async function getSurgeResult(promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic') {
     const response = await fetch('/generate-surge?promptType=' + promptType)
+    console.log(response)
+    window.test0 = response
     let data = await response.json()
     console.log(data.message)
     window.test = data.message
