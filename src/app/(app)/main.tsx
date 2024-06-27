@@ -23,6 +23,7 @@ declare global {
   interface Window {
     test: any
     test0: any
+    test1: any
   }
 }
 
@@ -88,6 +89,8 @@ export default function Main(props: MainProps) {
     console.log(response)
     window.test0 = response
     let data = await response.json()
+    console.log(data)
+    window.test1 = data
     console.log(data.message)
     window.test = data.message
     if (data.message.trim().startsWith('SyntaxError')) {
