@@ -35,6 +35,8 @@ export default function Main(props: MainProps) {
   const [surgeType, setSurgeType] = useState<SurgeType>(SurgeType.NoSurge)
   const [prevSurges, setPrevSurges] = useState<Surge[]>([])
   const [currentSurgeIndex, setCurrentSurgeIndex] = useState(-1)
+  const [nextSurgeEffect, setNextSurgeEffect] = useState<Surge | null>(null)
+  const [nextSurgeEffectLoading, setNextSurgeEffectLoading] = useState(true)
   const surgeSound = useRef<HTMLAudioElement | null>(null)
   const noSurgeSound = useRef<HTMLAudioElement | null>(null)
 
@@ -42,6 +44,19 @@ export default function Main(props: MainProps) {
     // Create an Audio object when the component mounts
     surgeSound.current = new Audio('/surge-sound.wav')
     noSurgeSound.current = new Audio('/no-surge-sound.wav')
+
+    const fetchData = async () => {
+      try {
+        console.log('fetching data')
+        const newSurge = await generateRandomSurge()
+        setNextSurgeEffect(newSurge)
+        setNextSurgeEffectLoading(false)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
   }, [])
 
   const playSurgeSound = (): void => {
@@ -61,87 +76,93 @@ export default function Main(props: MainProps) {
   }
 
   async function handleSurgeClick() {
-    const surgeOccurs = Math.random() < surgeProbability
-    setSurgeTextDelay(true)
-    setTimeout(async () => {
-      setSurgeTextDelay(false)
-      if (surgeOccurs) {
-        playSurgeSound()
-        setSurgeEffect('The wild magic surges...')
-        await activateSurgeEffect()
-        setSurgeProbability(0.05)
-        setTidesDisabled(false)
-      } else {
-        playNoSurgeSound()
-        setSurgeEffect('The wild magic waits.')
-        setSurgeType(SurgeType.NoSurge)
-        setSurgeProbability((surgeProbability) => surgeProbability + 0.05)
-      }
-    }, 750)
+    if (!nextSurgeEffectLoading) {
+      const surgeOccurs = Math.random() < surgeProbability
+      setSurgeTextDelay(true)
+      setTimeout(async () => {
+        setSurgeTextDelay(false)
+        if (surgeOccurs) {
+          playSurgeSound()
+          if (nextSurgeEffect != null) {
+            setSurgeType(nextSurgeEffect.surgeType)
+            setSurgeEffect('Wild magic surges...')
+            setSurgeProbability(0.05)
+            setTidesDisabled(false)
+            setNextSurgeEffectLoading(true)
+            setTimeout(() => {
+              setSurgeEffect(nextSurgeEffect.text)
+            }, 3000)
+            const newSurge = await generateRandomSurge()
+            await setNextSurgeEffect(newSurge)
+            setNextSurgeEffectLoading(false)
+          } else {
+            console.error('Bug! nextSurgeEffect is null.')
+          }
+        } else {
+          playNoSurgeSound()
+          setSurgeEffect('The wild magic waits.')
+          setSurgeType(SurgeType.NoSurge)
+          setSurgeProbability((surgeProbability) => surgeProbability + 0.05)
+        }
+      }, 2000)
+    }
   }
 
   function handleTidesClick() {
     setSurgeProbability(1)
   }
 
-  async function getSurgeResult(promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic') {
-    const response = await fetch('/generate-surge?promptType=' + promptType)
-    if (response.status < 300) {
-      let data = await response.json()
-      let message = await data.message
-      return message
-    } else {
-      setSurgeType(SurgeType.Neutral)
-      setSurgeEffect(
-        [
-          '...any second now...',
-          "...it's coming, I promise...",
-          '...Slight delay. Who coded this shit, anyways?',
-          '...the sorcerer jumps up and down a bit. Is this thing on?',
-          '...is it actually a wild magic surge, or does he just have gas?',
-          '...the Weave is a bit tangled right now...',
-          '...while we wait, what if two of the characters kissed?',
-          "...plumbing's a bit clogged. Might want to try some fiber...",
-          '...if you could go back in time, would you kill baby BBEG?..',
-          "...man, I hope it does something cool...",
-        ][Math.floor(Math.random() * 10)],
-      )
-      return await getSurgeResult(promptType)
+  function getStringForSurgeType(surgeType: SurgeType): string {
+    switch (surgeType) {
+      case SurgeType.Helpful:
+        return 'helpful'
+      case SurgeType.Neutral:
+        return 'neutral'
+      case SurgeType.Harmful:
+        return 'harmful'
+      case SurgeType.Chaotic:
+        return 'chaotic'
+      default:
+        return 'no-surge'
     }
   }
 
-  async function activateSurgeEffect() {
+  function rollRandomSurgeType(): SurgeType {
     const randomRoll = Math.random()
-    let promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic'
-    let surgeType: SurgeType = SurgeType.Neutral
     if (randomRoll < 0.35) {
-      promptType = 'helpful'
-      surgeType = SurgeType.Helpful
+      return SurgeType.Helpful
     } else if (randomRoll < 0.6) {
-      promptType = 'neutral'
-      surgeType = SurgeType.Neutral
+      return SurgeType.Neutral
     } else if (randomRoll < 0.8) {
-      promptType = 'harmful'
-      surgeType = SurgeType.Harmful
+      return SurgeType.Harmful
     } else {
-      promptType = 'chaotic'
-      surgeType = SurgeType.Chaotic
+      return SurgeType.Chaotic
     }
+  }
 
-    setSurgeType(surgeType)
-
-    try {
-      const message = await getSurgeResult(promptType)
-      setSurgeTextDelay(true)
-      setTimeout(async () => {
-        setSurgeTextDelay(false)
-        setSurgeEffect(message)
-        setPrevSurges((prevSurges) => [...prevSurges, { text: message, surgeType: surgeType }])
-        setCurrentSurgeIndex(prevSurges.length)
-      }, 750)
-    } catch (error) {
-      setSurgeEffect('An error occurred: ' + error)
+  async function getSurgeResult(surgeType: SurgeType): Promise<Surge> {
+    const response = await fetch('/generate-surge?promptType=' + getStringForSurgeType(surgeType))
+    if (response.status < 300) {
+      let data = await response.json()
+      let message = await data.message
+      return {
+        text: message as string,
+        surgeType: surgeType,
+      }
+    } else {
+      console.log('retrying')
+      /*Retry after 10 seconds */
+      return new Promise<Surge>((resolve, reject) => {
+        setTimeout(async () => {
+          let retry = await getSurgeResult(surgeType)
+          resolve(retry)
+        }, 10000)
+      })
     }
+  }
+
+  async function generateRandomSurge(): Promise<Surge> {
+    return await getSurgeResult(rollRandomSurgeType())
   }
 
   function leftHandler() {
@@ -195,7 +216,11 @@ export default function Main(props: MainProps) {
         </div>
         <div className={styles.surgeContainer}>
           <div className={styles.surgeButton}></div>
-          <button className={styles.surgeLabel} onClick={handleSurgeClick}>
+          <button
+            className={styles.surgeLabel}
+            onClick={handleSurgeClick}
+            disabled={nextSurgeEffectLoading}
+          >
             Surge
           </button>
         </div>

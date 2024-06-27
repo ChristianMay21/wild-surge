@@ -117,6 +117,10 @@
   background-color: #6a4f35;
 }
 
+.surgeLabel[disabled] {
+  background-color: gray;
+}
+
 .surgeEffectContainer {
   width: 350px;
   border: 1px solid white;
