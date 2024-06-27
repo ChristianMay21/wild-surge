@@ -94,7 +94,7 @@ export default function Main(props: MainProps) {
     window.test1 = data
     console.log('message: ', message)
     window.test = message
-    if (data.message.trim().startsWith('SyntaxError')) {
+    if (message.trim().startsWith('SyntaxError')) {
       console.log('Retrying.')
       return await getSurgeResult(promptType)
     } else {
