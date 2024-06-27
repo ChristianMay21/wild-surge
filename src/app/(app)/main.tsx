@@ -90,6 +90,8 @@ export default function Main(props: MainProps) {
             setTidesDisabled(false)
             setNextSurgeEffectLoading(true)
             setTimeout(() => {
+              setPrevSurges((prevSurges) => [...prevSurges, nextSurgeEffect])
+              setCurrentSurgeIndex((prevSurgeIndex) => prevSurgeIndex + 1)
               setSurgeEffect(nextSurgeEffect.text)
             }, 3000)
             const newSurge = await generateRandomSurge()
