@@ -19,6 +19,12 @@ interface PrevSurge {
   surgeType: SurgeType
 }
 
+declare global {
+  interface Window {
+    test: any
+  }
+}
+
 export default function Main(props: MainProps) {
   const [surgeProbability, setSurgeProbability] = useState(0.05)
   const [tidesDisabled, setTidesDisabled] = useState(false)
@@ -79,7 +85,9 @@ export default function Main(props: MainProps) {
   async function getSurgeResult(promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic') {
     const response = await fetch('/generate-surge?promptType=' + promptType)
     let data = await response.json()
-    if (data.message.trim().startsWith('An error occured: ')) {
+    console.log(data.message)
+    window.test = data.message
+    if (data.message.trim().startsWith('SyntaxError')) {
       console.log('Retrying.')
       return await getSurgeResult(promptType)
     } else {
