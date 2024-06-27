@@ -124,14 +124,21 @@ export default function Main(props: MainProps) {
 
     try {
       const message = await getSurgeResult(promptType)
+      console.log('1')
       setSurgeTextDelay(true)
+      console.log('2')
       setTimeout(async () => {
+        console.log('3')
         setSurgeTextDelay(false)
+        console.log('4')
         setSurgeEffect(message)
+        console.log('5')
+        setPrevSurges((prevSurges) => [...prevSurges, { text: message, surgeType: surgeType }])
+        console.log('6')
+        setCurrentSurgeIndex(prevSurges.length)  
+        console.log('7')
       }, 750)
 
-      setPrevSurges((prevSurges) => [...prevSurges, { text: message, surgeType: surgeType }])
-      setCurrentSurgeIndex(prevSurges.length)
     } catch (error) {
       setSurgeEffect('An error occurred: ' + error)
     }
