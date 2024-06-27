@@ -103,7 +103,7 @@ export default function Main(props: MainProps) {
           "...while we wait, what if two of the characters kissed?",
           "...plumbing's a bit clogged. Might want to try some fiber...",
           "...if you could go back in time, would you kill baby BBEG?..",
-          "...a Tarrasque spawns. Just kidding..."
+          "...in the mean time, a Tarrasque spawns. (Just kidding)..."
         ][Math.floor(Math.random() * 10)],
       )
       return await getSurgeResult(promptType)
