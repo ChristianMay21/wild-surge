@@ -86,19 +86,14 @@ export default function Main(props: MainProps) {
 
   async function getSurgeResult(promptType: 'helpful' | 'neutral' | 'harmful' | 'chaotic') {
     const response = await fetch('/generate-surge?promptType=' + promptType)
-    console.log(response)
-    window.test0 = response
-    let data = await response.json()
-    let message = await data.message
-    console.log('message: ', data)
-    window.test1 = data
-    console.log('message: ', message)
-    window.test = message
-    if (message.trim().startsWith('SyntaxError')) {
-      console.log('Retrying.')
-      return await getSurgeResult(promptType)
-    } else {
+    if (response.status < 300) {
+      let data = await response.json()
+      let message = await data.message
       return message
+    } else {
+      setSurgeType(SurgeType.Neutral)
+      setSurgeEffect('Wild magic fart. Please wait.')
+      return await getSurgeResult(promptType)
     }
   }
 
@@ -124,21 +119,13 @@ export default function Main(props: MainProps) {
 
     try {
       const message = await getSurgeResult(promptType)
-      console.log('1')
       setSurgeTextDelay(true)
-      console.log('2')
       setTimeout(async () => {
-        console.log('3')
         setSurgeTextDelay(false)
-        console.log('4')
         setSurgeEffect(message)
-        console.log('5')
         setPrevSurges((prevSurges) => [...prevSurges, { text: message, surgeType: surgeType }])
-        console.log('6')
-        setCurrentSurgeIndex(prevSurges.length)  
-        console.log('7')
+        setCurrentSurgeIndex(prevSurges.length)
       }, 750)
-
     } catch (error) {
       setSurgeEffect('An error occurred: ' + error)
     }
