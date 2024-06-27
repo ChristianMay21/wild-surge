@@ -100,10 +100,10 @@ export default function Main(props: MainProps) {
           '...the sorcerer jumps up and down a bit. Is this thing on?',
           '...is it actually a wild magic surge, or does he just have gas?',
           '...the Weave is a bit tangled right now...',
-          "...while we wait, what if two of the characters kissed?",
+          '...while we wait, what if two of the characters kissed?',
           "...plumbing's a bit clogged. Might want to try some fiber...",
-          "...if you could go back in time, would you kill baby BBEG?..",
-          "...in the mean time, a Tarrasque spawns. (Just kidding)..."
+          '...if you could go back in time, would you kill baby BBEG?..',
+          "...man, I hope it does something cool...",
         ][Math.floor(Math.random() * 10)],
       )
       return await getSurgeResult(promptType)
