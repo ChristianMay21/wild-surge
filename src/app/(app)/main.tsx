@@ -89,15 +89,16 @@ export default function Main(props: MainProps) {
     console.log(response)
     window.test0 = response
     let data = await response.json()
-    console.log(data)
+    let message = await data.message
+    console.log('message: ', data)
     window.test1 = data
-    console.log(data.message)
-    window.test = data.message
+    console.log('message: ', message)
+    window.test = message
     if (data.message.trim().startsWith('SyntaxError')) {
       console.log('Retrying.')
       return await getSurgeResult(promptType)
     } else {
-      return data.message
+      return message
     }
   }
 
